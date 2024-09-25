@@ -1,0 +1,264 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book Bus - {{ bus.bus_number }}</title>
+    <link rel="stylesheet" href="{% static 'css/booking.css' %}">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        /* Custom styles for the booking page */
+
+/* Global Styles */
+body {
+    background-color: #f8f9fa;
+    font-family: 'Arial', sans-serif;
+    color: #333;
+    margin: 0;
+}
+
+/* Container */
+.container {
+    max-width: 800px;
+    margin: auto;
+    padding: 20px;
+}
+
+/* Hero Section */
+h2 {
+    text-align: center;
+    margin-bottom: 30px;
+    font-size: 2rem;
+    color: #007bff;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* Form Sections */
+.form-section {
+    display: none;
+    margin-bottom: 20px;
+    transition: opacity 0.5s ease-in-out;
+}
+
+.form-section.active {
+    display: block;
+    opacity: 1;
+}
+
+/* Card Styles */
+.card {
+    border: none;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s;
+}
+
+.card:hover {
+    transform: scale(1.02);
+}
+
+.card-img-top {
+    max-height: 300px;
+    object-fit: cover;
+    border-radius: 10px 10px 0 0;
+}
+
+/* Button Styles */
+.btn-primary,
+.btn-success {
+    background-color: #007bff;
+    border-color: #007bff;
+    transition: background-color 0.3s, transform 0.2s;
+}
+
+.btn-primary:hover,
+.btn-success:hover {
+    background-color: #0056b3;
+    border-color: #0056b3;
+    transform: translateY(-2px);
+}
+
+/* Summary Styles */
+.summary {
+    background-color: #e9ecef;
+    padding: 15px;
+    border-radius: 8px;
+    margin-top: 10px;
+    transition: background-color 0.3s;
+}
+
+.summary:hover {
+    background-color: #dee2e6;
+}
+
+.summary h5 {
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+/* Wizard Navigation */
+.wizard-navigation {
+    text-align: center;
+    margin-top: 20px;
+}
+
+#prevBtn,
+#nextBtn {
+    margin: 10px;
+    padding: 10px 20px;
+    border-radius: 5px;
+}
+
+/* Input Styles */
+.form-control {
+    border-radius: 5px;
+    border: 1px solid #ced4da;
+    transition: border-color 0.3s;
+}
+
+.form-control:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+}
+
+/* Media Queries */
+@media (max-width: 600px) {
+    h2 {
+        font-size: 1.5rem;
+    }
+
+    .card {
+        margin-bottom: 20px;
+    }
+}
+
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <h2 class="text-center">Book Your Bus</h2>
+        <form id="bookingForm" method="POST" action="{% url 'booking' bus.id %}">
+            {% csrf_token %}
+            
+            <!-- Step 1: Select Seats -->
+            <div class="form-section active" data-step="1">
+                <div class="card mb-4">
+                    <img src="{{ bus.image.url }}" class="card-img-top" alt="{{ bus.bus_number }}">
+                    <div class="card-body">
+                        <h5 class="card-title">Seat Capacity: {{ bus.seats }}</h5>
+                        <p class="card-text">{{ bus.description }}</p>
+                        <p class="card-text">Price per Seat: ksh{{ bus.price }}</p>
+                        <div class="form-group">
+                            <label for="seat_count">Number of Seats:</label>
+                            <input type="number" class="form-control" id="seat_count" name="seat_count" min="1" max="{{ bus.seats }}" required>
+                        </div>
+                        <p>Total Price: ksh<span id="price_value">{{ bus.price }}</span></p>
+                        <!-- Route selection dropdown -->
+                        <div class="form-group">
+                            <label for="route">Select Route:</label>
+                            <select class="form-control" id="route" name="route" required>
+                                {% for route in routes %}
+                                    <option value="{{ route.id }}">{{ route.name }} ({{ route.distance }} km)</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 2: Your Details -->
+            <div class="form-section" data-step="2">
+                <h5>Enter Your Details</h5>
+                <div class="form-group">
+                    <label for="name">Full Name</label>
+                    <input type="text" class="form-control" id="name" name="name" required>
+                </div>
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" class="form-control" id="email" name="email" required>
+                </div>
+            </div>
+
+            <!-- Step 3: Confirmation -->
+            <div class="form-section" data-step="3">
+                <h5>Confirm Your Booking</h5>
+                <div class="summary">
+                    <h5>Booking Summary</h5>
+                    <p><strong>Seats:</strong> <span id="confirm_seat_count"></span></p>
+                    <p><strong>Total Price:</strong> ksh<span id="confirm_price"></span></p>
+                    <p><strong>Name:</strong> <span id="confirm_name"></span></p>
+                    <p><strong>Email:</strong> <span id="confirm_email"></span></p>
+                </div>
+                <button id="confirmButton" type="submit" class="btn btn-success mt-4">Confirm Booking</button>
+            </div>
+
+            <!-- Navigation Buttons -->
+            <div class="wizard-navigation">
+                <button id="prevBtn" class="btn btn-secondary" style="visibility:hidden;">Previous</button>
+                <button id="nextBtn" class="btn btn-primary">Next</button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        const pricePerSeat = {{ bus.price }};
+        const seatCountInput = document.getElementById('seat_count');
+        const totalPriceDisplay = document.getElementById('price_value');
+        const steps = document.querySelectorAll('.form-section');
+        const nextBtn = document.getElementById('nextBtn');
+        const prevBtn = document.getElementById('prevBtn');
+        let currentStep = 1;
+
+        // Update the total price based on seat count
+        seatCountInput.addEventListener('input', function() {
+            const seatCount = seatCountInput.value;
+            const totalPrice = pricePerSeat * seatCount;
+            totalPriceDisplay.textContent = totalPrice;
+        });
+
+        // Handle navigation between steps
+        nextBtn.addEventListener('click', function() {
+            if (currentStep < steps.length) {
+                steps[currentStep - 1].classList.remove('active');
+                steps[currentStep].classList.add('active');
+                currentStep++;
+                updateButtons();
+                updateSummary();
+            }
+        });
+
+        prevBtn.addEventListener('click', function() {
+            if (currentStep > 1) {
+                steps[currentStep - 1].classList.remove('active');
+                steps[currentStep - 2].classList.add('active');
+                currentStep--;
+                updateButtons();
+            }
+        });
+
+        function updateButtons() {
+            if (currentStep === 1) {
+                prevBtn.style.visibility = 'hidden';
+            } else {
+                prevBtn.style.visibility = 'visible';
+            }
+
+            if (currentStep === steps.length) {
+                nextBtn.style.visibility = 'hidden';
+            } else {
+                nextBtn.style.visibility = 'visible';
+            }
+        }
+
+        function updateSummary() {
+            document.getElementById('confirm_seat_count').textContent = seatCountInput.value;
+            document.getElementById('confirm_price').textContent = totalPriceDisplay.textContent;
+            document.getElementById('confirm_name').textContent = document.getElementById('name').value;
+            document.getElementById('confirm_email').textContent = document.getElementById('email').value;
+        }
+
+        updateButtons();
+    </script>
+</body>
+</html>

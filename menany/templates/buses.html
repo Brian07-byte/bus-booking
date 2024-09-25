@@ -1,0 +1,166 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Available Buses</title>
+    <link rel="stylesheet" href="{% static 'css/buses.css' %}">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            background-color: #f4f4f4;
+        }
+        .bus-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-around;
+            margin: 0 auto;
+        }
+        .bus-card {
+            width: 350px;
+            margin: 15px;
+            background-color: #fff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            overflow: hidden;
+            transition: transform 0.2s ease-in-out;
+        }
+        .bus-card:hover {
+            transform: scale(1.05);
+        }
+        .bus-card img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+        .bus-details {
+            padding: 15px;
+        }
+        .bus-details h5 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .bus-details p {
+            margin-bottom: 8px;
+            color: #555;
+        }
+        .btn-book, .btn-favorite {
+            display: inline-block;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            text-decoration: none;
+            color: white;
+            transition: background-color 0.3s ease;
+            margin-top: 10px;
+        }
+        .btn-book {
+            background-color: #007bff;
+        }
+        .btn-book:hover {
+            background-color: #0056b3;
+        }
+        .btn-favorite {
+            background-color: #28a745;
+        }
+        .btn-favorite:hover {
+            background-color: #218838;
+        }
+        .favorite {
+            color: red;
+        }
+        .filter-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        .filter-container select {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container mt-4">
+        <h1 class="text-center mb-4">Available Buses</h1>
+
+        <!-- Filter by Route -->
+        <div class="filter-container">
+            <label for="filterRoute">Filter by Route:</label>
+            <select id="filterRoute" class="ml-2">
+                <option value="all">All Routes</option>
+                {% for route in routes %}
+                    <option value="{{ route.source }}-{{ route.destination }}">{{ route.source }} to {{ route.destination }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="bus-container" id="busContainer">
+            {% if buses %}
+                {% for bus in buses %}
+                <div class="bus-card" data-route="{{ bus.routes.all.0.source }}-{{ bus.routes.all.0.destination }}">
+                    <img src="{{ bus.image.url }}" alt="{{ bus.bus_number }}" class="img-fluid">
+                    <div class="bus-details">
+                        <h5>Bus Number: {{ bus.bus_number }}</h5>
+                        <p><strong>Seat Capacity:</strong> {{ bus.seats }}</p>
+                        <p><strong>Route:</strong>
+                            {% for route in bus.routes.all %}
+                                {{ route.source }} to {{ route.destination }}<br>
+                            {% endfor %}
+                        </p>
+                        <p><strong>Description:</strong> {{ bus.description }}</p>
+                        <p><strong>Price:</strong> ${{ bus.price }}</p>
+                        <a href="{% url 'booking' bus.id %}" class="btn-book">Book Now</a>
+                        <button class="btn-favorite" onclick="toggleFavorite(this)">❤️ Add to Favorites</button>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="text-center">
+                    <div class="alert alert-warning" role="alert">
+                        No buses available.
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+        // Filter Buses by Route
+        const filterSelect = document.getElementById('filterRoute');
+        const buses = document.querySelectorAll('.bus-card');
+
+        filterSelect.addEventListener('change', function() {
+            const selectedRoute = this.value;
+
+            buses.forEach(bus => {
+                const busRoute = bus.getAttribute('data-route');
+                if (selectedRoute === 'all' || busRoute === selectedRoute) {
+                    bus.style.display = 'block';
+                } else {
+                    bus.style.display = 'none';
+                }
+            });
+        });
+
+        // Toggle Favorite
+        function toggleFavorite(button) {
+            if (button.classList.contains('favorite')) {
+                button.classList.remove('favorite');
+                button.textContent = '❤️ Add to Favorites';
+            } else {
+                button.classList.add('favorite');
+                button.textContent = '💔 Remove from Favorites';
+            }
+        }
+    </script>
+
+    <!-- Bootstrap JS and dependencies -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

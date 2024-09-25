@@ -1,0 +1,97 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bus Schedule</title>
+    <link rel="stylesheet" href="{% static 'css/schedule.css' %}">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        /* Additional Styling for Table */
+        body {
+            background-color: #f8f9fa;
+        }
+        .container {
+            max-width: 800px;
+            margin: auto;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        table {
+            margin-top: 20px;
+        }
+        .table th, .table td {
+            text-align: center;
+        }
+        form {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-4">
+        <h1>Bus Schedule</h1>
+        
+        <!-- Form to Add a New Schedule -->
+        <form method="POST" action="{% url 'schedule' bus.id %}">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="route_id">Select Route</label>
+                <select class="form-control" id="route_id" name="route_id" required>
+                    {% for route in routes %}
+                    <option value="{{ route.id }}">{{ route.source }} to {{ route.destination }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="date">Select Date</label>
+                <input type="date" class="form-control" id="date" name="date" required>
+            </div>
+            <div class="form-group">
+                <label for="available_seats">Available Seats</label>
+                <input type="number" class="form-control" id="available_seats" name="available_seats" min="1" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Add Schedule</button>
+        </form>
+
+        <!-- Display the Schedule Table -->
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Route</th>
+                    <th>Date</th>
+                    <th>Available Seats</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for schedule in schedules %}
+                <tr>
+                    <td>{{ schedule.route.source }} to {{ schedule.route.destination }}</td>
+                    <td>{{ schedule.date }}</td>
+                    <td>{{ schedule.available_seats }}</td>
+                    <td>
+                        {% if schedule.available_seats > 0 %}
+                            <a href="{% url 'booking' schedule.id %}" class="btn btn-primary">Book Now</a>
+                        {% else %}
+                            <span class="text-danger">Fully Booked</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4">No schedules available.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>

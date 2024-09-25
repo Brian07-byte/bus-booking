@@ -1,0 +1,67 @@
+/* Styling the bus cards */
+.card {
+    border-radius: 10px;
+    overflow: hidden;
+    transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+}
+
+.card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+/* Adjust the size of the bus images */
+.card-img-top {
+    max-height: 200px; /* Smaller height */
+    object-fit: cover; /* Ensures the image scales properly */
+}
+
+/* Styling for the container and card body */
+.container {
+    margin-top: 50px;
+}
+
+.card-body {
+    padding: 15px;
+    text-align: center;
+}
+
+/* Styling the title */
+.card-title {
+    font-size: 18px;
+    font-weight: bold;
+}
+
+/* Button styling */
+.btn-primary {
+    background-color: #007bff;
+    border-color: #007bff;
+    font-size: 14px;
+    padding: 10px 20px;
+    border-radius: 20px;
+    transition: background-color 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+}
+
+.btn-primary:hover {
+    background-color: #0056b3;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Responsive adjustments for smaller screens */
+@media (max-width: 768px) {
+    .card-img-top {
+        max-height: 150px;
+    }
+    .card-title {
+        font-size: 16px;
+    }
+}
+
+@media (max-width: 576px) {
+    .card {
+        margin-bottom: 20px;
+    }
+    .card-title {
+        font-size: 14px;
+    }
+}

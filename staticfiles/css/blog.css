@@ -1,0 +1,87 @@
+/* General body styling */
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: #f4f4f4;
+}
+
+/* Section title styling */
+.section-title {
+    font-size: 2.5rem;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 2rem;
+    text-transform: uppercase;
+}
+
+/* Blog container */
+.blog-section {
+    padding: 50px 0;
+}
+
+/* Blog item */
+.blog-item {
+    background-color: #fff;
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 30px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Hover effect */
+.blog-item:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+/* Blog image */
+.img-circle {
+    border-radius: 50%;
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    margin-right: 20px;
+}
+
+/* Blog text */
+.blog-text p {
+    font-size: 1.1rem;
+    font-weight: 500;
+    color: #555;
+}
+
+/* Flex container for image and text */
+.d-flex {
+    display: flex;
+    align-items: center;
+}
+
+/* Dots */
+.dot {
+    height: 15px;
+    width: 15px;
+    background-color: #bbb;
+    border-radius: 50%;
+    display: inline-block;
+    margin: 0 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.dot.active {
+    background-color: #333;
+}
+
+.dot:hover {
+    background-color: #666;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .blog-item {
+        margin-bottom: 20px;
+    }
+
+    .blog-text p {
+        font-size: 1rem;
+    }
+}
